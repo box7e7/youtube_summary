@@ -12,7 +12,7 @@ dotenv.load_dotenv()
 # Set OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-print("#################/n",openai.api_key)
+print("#################\n",openai.api_key,"\n#################")
 
 app = FastAPI()
 
