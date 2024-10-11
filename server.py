@@ -96,7 +96,7 @@ async def summarize_video(video_id: str, authorization: str = Header(...)):
         
         # Extract and return the output
         summary_output = response.choices[0].message['content']
-        return {"summary": summary_output}
+        return {"summary": summary_output,"transcription": transcription}
     except subprocess.CalledProcessError as e:
         # If the script fails, raise an HTTP exception with the error message
         raise HTTPException(status_code=500, detail=f"Error getting transcription: {e.stderr}")
