@@ -4,6 +4,7 @@ import openai
 import os
 import requests
 from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
 import markdown2
 import dotenv
 
@@ -14,7 +15,19 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # print("#################\n",openai.api_key,"\n#################")
 
+
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Change "*" to a list of trusted origins in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 
 def verify_token(token: str):
     try:
