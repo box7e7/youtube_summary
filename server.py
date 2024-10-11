@@ -243,6 +243,45 @@ async def query_video(video_id: str, request: Request, authorization: str = Head
     except openai.error.OpenAIError as e:
         # If the OpenAI API call fails, raise an HTTP exception with the error message
         raise HTTPException(status_code=500, detail=f"Error querying transcription: {str(e)}")
+    
+
+
+@app.post("/ask/{video_id}")
+async def ask_video(video_id: str, request: Request, authorization: str = Header(...)):
+    if not verify_token(authorization):
+        raise HTTPException(status_code=401, detail="Authentication and Authorization failed.")
+    try:
+        # Extract transcript and query from request body
+        body = await request.json()
+        transcript = body.get("transcript")
+        query = body.get("query")
+
+        if not transcript or not query:
+            raise HTTPException(status_code=400, detail="Both 'transcript' and 'query' fields are required.")
+
+        # Define system instructions for the model
+        system_instructions = (
+            f"Transcription between delimiters:\n\n---\n{transcript}\n---\n\n"
+            "Answer the following query based on the provided transcription."
+        )
+
+        # Call OpenAI API for querying
+        response = openai.ChatCompletion.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_instructions},
+                {"role": "user", "content": query}
+            ]
+        )
+
+        # Extract and return the output
+        answer_output = response.choices[0].message['content']
+        return {"response": answer_output}
+
+     
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 if __name__ == "__main__":
     import uvicorn
